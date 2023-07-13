@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "142703883644",
+    "project_id": "tinderapp-46361",
+    "storage_bucket": "tinderapp-46361.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:142703883644:android:ed9f4e9972c7ee5753a0f9",
+        "android_client_info": {
+          "package_name": "com.demdev.salute"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "142703883644-3ig1c3dgdgbu31de53193of21nh2d2at.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByMlGwojQ9nfz6Y8PP1-1ZrBj2nPYvl3Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "142703883644-3ig1c3dgdgbu31de53193of21nh2d2at.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "142703883644-pnghqdrscdkcpt1vltqdllke1m1745pq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.fredrikbogg.tinderCloneFlutter"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:142703883644:android:b235f1a2d26e97dc53a0f9",
+        "android_client_info": {
+          "package_name": "com.fredrikbogg.tinder_app_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "142703883644-3ig1c3dgdgbu31de53193of21nh2d2at.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByMlGwojQ9nfz6Y8PP1-1ZrBj2nPYvl3Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "142703883644-3ig1c3dgdgbu31de53193of21nh2d2at.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "142703883644-pnghqdrscdkcpt1vltqdllke1m1745pq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.fredrikbogg.tinderCloneFlutter"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
