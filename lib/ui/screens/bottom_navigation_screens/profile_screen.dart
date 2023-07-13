@@ -86,7 +86,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       child: RoundedButton(
                                         text: 'LOGOUT',
                                         onPressed: () {
-                                           logoutPressed(userProvider, context);
+                                          logoutPressed(userProvider, context);
                                         },
                                       ),
                                     ),
@@ -111,8 +111,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Bio', style: Theme.of(context).textTheme.headlineMedium
-            ?.copyWith(color: kBackgroundColor)),
+            Text('Bio',
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineMedium
+                    ?.copyWith(color: kBackgroundColor)),
             RoundedIconButton(
               onPressed: () {
                 showDialog(
@@ -199,7 +202,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: SizedBox(
-        height: 400, // Set the same height as the parent Container
+        height: 400,
         child: Column(
           children: [
             Expanded(
@@ -228,7 +231,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   //SizedBox(width: 16),
                   ElevatedButton(
                     onPressed: _isUploading == false
-                        ? () => {uploadPhotos(userProvider)}
+                        ? () => {
+                              if (!_imagePaths.every((path) => path.isEmpty))
+                                uploadPhotos(userProvider)
+                              else
+                                setState(() {
+                                  _showGridView = false;
+                                })
+                            }
                         : () {},
                     child: Text('Save'),
                   ),
@@ -248,8 +258,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('City', style: Theme.of(context).textTheme.headlineMedium
-                ?.copyWith(color: kBackgroundColor)),
+            Text('City',
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineMedium
+                    ?.copyWith(color: kBackgroundColor)),
             user.city.trim().isNotEmpty
                 ? RoundedIconButton(
                     onPressed: () {

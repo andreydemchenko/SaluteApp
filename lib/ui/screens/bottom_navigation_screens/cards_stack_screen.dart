@@ -1,5 +1,7 @@
 //import 'dart:js_interop';
 
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -135,100 +137,99 @@ class _CardsStackScreenState extends State<CardsStackScreen>
 
   @override
   Widget build(BuildContext buildContext) {
-
     return Scaffold(
       key: _scaffoldKey,
-      body: Container(
-        child: Consumer<UserProvider?>(
-          builder: (context, userProvider, child) {
-            print("UserProvider: $userProvider");
-            return FutureBuilder<AppUser?>(
-              future: userProvider?.user,
-              builder: (context, userSnapshot) {
-                print("UserSnapshot: $userSnapshot");
-                return CustomModalProgressHUD(
-                  inAsyncCall: userProvider == null || userProvider.isLoading,
-                  offset: null,
-                  child: (userSnapshot.hasData)
-                      ? FutureBuilder<List<AppUser>>(
-                          future: loadPersons(userProvider?.userId ?? ''),
-                          builder: (context, snapshot) {
-                            print("LoadPerson FutureBuilder: $snapshot");
-                            if (snapshot.connectionState ==
-                                    ConnectionState.done &&
-                                !snapshot.hasData || users.isEmpty) {
-                              return Center(
-                                child: Container(
-                                    child: Text('No users',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineMedium)),
-                              );
-                            }
-                            if (!snapshot.hasData) {
-                              return CustomModalProgressHUD(
-                                inAsyncCall: true,
-                                offset: null,
-                                child: Container(),
-                              );
-                            }
-                            //List<AppUser> users = snapshot.data ?? [];
-
-                            if (users.length <= threshold) {
-                              return FutureBuilder<List<AppUser>>(
-                                  future: loadPersons(userProvider?.userId ?? ''),
-                                  builder: (context, snapshot) {
-                                    print("LoadPerson FutureBuilder: $snapshot");
-                                    if (!snapshot.hasData || users.isEmpty) {
-                                      return Center(
-                                        child: Container(
-                                            child: Text('No users',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headlineMedium)),
-                                      );
-                                    }
-                                    if (users.length <= threshold) {
-                                      return FutureBuilder<List<AppUser>>(
-                                          future: loadPersons(userProvider?.userId ?? ''),
-                                          builder: (context, snapshot) {
-                                            if (snapshot.connectionState == ConnectionState.waiting) {
-                                              return CustomModalProgressHUD(
-                                                inAsyncCall: true,
-                                                offset: null,
-                                                child: Container(),
-                                              );
-                                            }
-                                            if (!snapshot.hasData || snapshot.data?.isEmpty == true) {
-                                              return Center(
-                                                child: Container(
-                                                    child: Text('No more users',
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .headlineMedium)),
-                                              );
-                                            }
-                                            // Add newly loaded users to the existing users list
-                                            users.addAll(snapshot.data ?? []);
-                                            return buildUsersStack(userSnapshot, users);
-                                          }
-                                      );
-                                    } else {
-                                      return buildUsersStack(userSnapshot, users); // If there are enough users, just build the user stack
-                                    }
+      body: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaY: 0.5, sigmaX: 0.5),
+            child: Image.asset(
+              'images/shapes_background.png',
+              fit: BoxFit.cover,
+              color: kBlueColor,
+            ),
+          ),
+          Consumer<UserProvider?>(
+            builder: (context, userProvider, child) {
+              return FutureBuilder<AppUser?>(
+                future: userProvider?.user,
+                builder: (context, userSnapshot) {
+                  return CustomModalProgressHUD(
+                    inAsyncCall: userProvider == null || userProvider.isLoading,
+                    offset: null,
+                    child: (userSnapshot.hasData)
+                        ? FutureBuilder<List<AppUser>>(
+                        future: loadPersons(userProvider?.userId ?? ''),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.done &&
+                              !snapshot.hasData || users.isEmpty) {
+                            return Center(
+                              child: Text('No users',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium),
+                            );
+                          }
+                          if (!snapshot.hasData) {
+                            return CustomModalProgressHUD(
+                              inAsyncCall: true,
+                              offset: null,
+                              child: Container(),
+                            );
+                          }
+                          if (users.length <= threshold) {
+                            return FutureBuilder<List<AppUser>>(
+                                future: loadPersons(userProvider?.userId ?? ''),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData || users.isEmpty) {
+                                    return Center(
+                                      child: Text('No users',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineMedium),
+                                    );
                                   }
-
-                              );
-                            } else {
-                              return buildUsersStack(userSnapshot, users);
-                            }
-                          })
-                      : Container(),
-                );
-              },
-            );
-          },
-        ),
+                                  if (users.length <= threshold) {
+                                    return FutureBuilder<List<AppUser>>(
+                                        future: loadPersons(userProvider?.userId ?? ''),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                            return CustomModalProgressHUD(
+                                              inAsyncCall: true,
+                                              offset: null,
+                                              child: Container(),
+                                            );
+                                          }
+                                          if (!snapshot.hasData || snapshot.data?.isEmpty == true) {
+                                            return Center(
+                                              child: Text('No more users',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headlineMedium),
+                                            );
+                                          }
+                                          users.addAll(snapshot.data ?? []);
+                                          return buildUsersStack(userSnapshot, users);
+                                        }
+                                    );
+                                  } else {
+                                    return buildUsersStack(userSnapshot, users);
+                                  }
+                                }
+                            );
+                          } else {
+                            return buildUsersStack(userSnapshot, users);
+                          }
+                        })
+                        : Container(),
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
     );
   }
