@@ -1,5 +1,6 @@
 //import 'dart:js_interop';
 
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,8 +15,11 @@ import 'package:salute/data/provider/user_provider.dart';
 import 'package:salute/ui/screens/matched_screen.dart';
 import 'package:salute/ui/widgets/custom_modal_progress_hud.dart';
 import 'package:salute/ui/widgets/rounded_icon_button.dart';
+import 'package:salute/ui/widgets/swipe_card.dart';
 import 'package:salute/util/constants.dart';
 import 'package:salute/util/utils.dart';
+import 'package:swipe_cards/swipe_cards.dart';
+import 'dart:developer';
 
 import '../../widgets/drag_cart.dart';
 
@@ -30,70 +34,32 @@ class _CardsStackScreenState extends State<CardsStackScreen>
   final FirebaseDatabaseSource _databaseSource = FirebaseDatabaseSource();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   late List<String> _ignoreSwipeIds = [];
-  late final AnimationController _animationController;
+  final StreamController<List<AppUser>> _userStreamController =
+      StreamController<List<AppUser>>();
   List<AppUser> users = [];
   AppUser? otherUser;
   int? otherUserIndex;
-  int threshold = 1;
 
-  ValueNotifier<Swipe> swipeNotifier = ValueNotifier(Swipe.none);
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
-    _animationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-       // _ignoreSwipeIds.removeLast();
-        _animationController.reset();
-
-        swipeNotifier.value = Swipe.none;
-      }
-    });
-  }
-
-  Future<AppUser?> loadPerson(String userId) async {
-    if (_ignoreSwipeIds.isEmpty) {
-      _ignoreSwipeIds = [];
-      var swipes = await _databaseSource.getSwipes(userId);
-      print("swipes == $swipes");
-      for (var i = 0; i < swipes.size; i++) {
-        SwipeModel swipe = SwipeModel.fromSnapshot(swipes.docs[i]);
-        _ignoreSwipeIds.add(swipe.id);
-      }
-      _ignoreSwipeIds.add(userId);
-    }
-    var res = await _databaseSource.getPersonsToMatchWith(1, _ignoreSwipeIds);
-    print("res == $res");
-    if (res.docs.isNotEmpty) {
-      var userToMatchWith = AppUser.fromSnapshot(res.docs.first);
-      return userToMatchWith;
-    } else {
-      return null;
-    }
-  }
-
-  Future<List<AppUser>> loadPersons(String userId) async {
+  Stream<List<AppUser>> usersStream(String userId) async* {
     if (_ignoreSwipeIds.isEmpty) {
       var swipes = await _databaseSource.getSwipes(userId);
       for (var i = 0; i < swipes.size; i++) {
         SwipeModel swipe = SwipeModel.fromSnapshot(swipes.docs[i]);
         _ignoreSwipeIds.add(swipe.id);
       }
-
     }
     _ignoreSwipeIds.add(userId);
-    var res = await _databaseSource.getPersonsToMatchWith(10, _ignoreSwipeIds);
-    if (res.docs.isNotEmpty) {
-      for (var doc in res.docs) {
-        var userToMatchWith = AppUser.fromSnapshot(doc);
-        users.add(userToMatchWith);
-      }
+
+    await for (var users in _databaseSource
+        .getPersonsToMatchWith(10, _ignoreSwipeIds)
+        .map((querySnapshot) {
+      return querySnapshot.docs
+          .map((doc) => AppUser.fromSnapshot(doc))
+          .toList();
+    })) {
+      yield users;
     }
-    return users;
+
   }
 
   void personSwiped(AppUser myUser, AppUser otherUser, bool isLiked) async {
@@ -143,7 +109,7 @@ class _CardsStackScreenState extends State<CardsStackScreen>
         fit: StackFit.expand,
         children: <Widget>[
           ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaY: 0.5, sigmaX: 0.5),
+            imageFilter: ImageFilter.blur(sigmaY: 0.5, sigmaX: 0.5),
             child: Image.asset(
               'images/shapes_background.png',
               fit: BoxFit.cover,
@@ -159,70 +125,101 @@ class _CardsStackScreenState extends State<CardsStackScreen>
                     inAsyncCall: userProvider == null || userProvider.isLoading,
                     offset: null,
                     child: (userSnapshot.hasData)
-                        ? FutureBuilder<List<AppUser>>(
-                        future: loadPersons(userProvider?.userId ?? ''),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.done &&
-                              !snapshot.hasData || users.isEmpty) {
-                            return Center(
-                              child: Text('No users',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineMedium),
-                            );
-                          }
-                          if (!snapshot.hasData) {
-                            return CustomModalProgressHUD(
-                              inAsyncCall: true,
-                              offset: null,
-                              child: Container(),
-                            );
-                          }
-                          if (users.length <= threshold) {
-                            return FutureBuilder<List<AppUser>>(
-                                future: loadPersons(userProvider?.userId ?? ''),
-                                builder: (context, snapshot) {
-                                  if (!snapshot.hasData || users.isEmpty) {
-                                    return Center(
-                                      child: Text('No users',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineMedium),
-                                    );
-                                  }
-                                  if (users.length <= threshold) {
-                                    return FutureBuilder<List<AppUser>>(
-                                        future: loadPersons(userProvider?.userId ?? ''),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState == ConnectionState.waiting) {
-                                            return CustomModalProgressHUD(
-                                              inAsyncCall: true,
-                                              offset: null,
-                                              child: Container(),
-                                            );
-                                          }
-                                          if (!snapshot.hasData || snapshot.data?.isEmpty == true) {
-                                            return Center(
-                                              child: Text('No more users',
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .headlineMedium),
-                                            );
-                                          }
-                                          users.addAll(snapshot.data ?? []);
-                                          return buildUsersStack(userSnapshot, users);
-                                        }
-                                    );
-                                  } else {
-                                    return buildUsersStack(userSnapshot, users);
-                                  }
-                                }
-                            );
-                          } else {
-                            return buildUsersStack(userSnapshot, users);
-                          }
-                        })
+                        ? StreamBuilder<List<AppUser>>(
+                            stream: usersStream(userProvider?.userId ?? ''),
+                            builder: (context, snapshot) {
+                              return CustomModalProgressHUD(
+                                  inAsyncCall: snapshot.connectionState ==
+                                      ConnectionState.waiting,
+                                  offset: null,
+                                  child: (snapshot.hasData) ? Stack(
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        SwipeCards(
+                                          matchEngine: MatchEngine(
+                                              swipeItems: snapshot.data!.map((user) {
+                                            return SwipeItem(
+                                                content:
+                                                    SwipeCard(person: user),
+                                                likeAction: () {
+                                                  log("like ${user.name}");
+                                                  personSwiped(
+                                                      userSnapshot.data!,
+                                                      user,
+                                                      true);
+                                                },
+                                                nopeAction: () {
+                                                  log("dislike ${user.name}");
+                                                  personSwiped(
+                                                      userSnapshot.data!,
+                                                      user,
+                                                      false);
+                                                });
+                                          }).toList()),
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            otherUser = snapshot.data![index];
+                                            return Center(child:
+                                              SwipeCard(
+                                                person: snapshot.data![index]));
+                                          },
+                                          onStackFinished: () {
+                                            Center(
+                                                child: Text('No more users',
+                                                style: Theme.of(context)
+                                                .textTheme
+                                                .headlineMedium));
+                                          },
+                                          upSwipeAllowed: false,
+                                        ),
+                                        Positioned(
+                                          bottom: 10,
+                                          left: 20,
+                                          right: 20,
+                                          child: Padding(
+                                            padding:
+                                            const EdgeInsets.only(bottom: 12.0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                              children: [
+                                                RoundedIconButton(
+                                                  onPressed: () {
+                                                    if (otherUser != null) {
+                                                      personSwiped(
+                                                          userSnapshot.data!, // myUser
+                                                          otherUser!, // otherUser
+                                                          false);
+                                                    }
+                                                  },
+                                                  iconData: Icons.clear,
+                                                  buttonColor: kPrimaryColor,
+                                                  iconSize: 30,
+                                                  iconColor: kSecondaryColor,
+                                                ),
+                                                Spacer(),
+                                                RoundedIconButton(
+                                                  onPressed: () {
+                                                    if (otherUser != null) {
+                                                      personSwiped(
+                                                          userSnapshot.data!,
+                                                          otherUser!,
+                                                          true);
+                                                    }
+                                                  },
+                                                  iconData: Icons.favorite,
+                                                  iconSize: 30,
+                                                  buttonColor: kPrimaryColor,
+                                                  iconColor: kSecondaryColor,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      ]) :Container());
+
+                              }
+                            )
                         : Container(),
                   );
                 },
@@ -234,6 +231,12 @@ class _CardsStackScreenState extends State<CardsStackScreen>
     );
   }
 
+  @override
+  void dispose() {
+    _userStreamController.close();
+    super.dispose();
+  }
+/*
   Widget buildUsersStack(AsyncSnapshot<AppUser?> userSnapshot, List<AppUser> users) {
     double cardWidth = MediaQuery.of(context).size.width * 0.85;
     double cardHeight = MediaQuery.of(context).size.height * 0.725;
@@ -341,8 +344,9 @@ class _CardsStackScreenState extends State<CardsStackScreen>
                     // });
                   },
                   iconData: Icons.clear,
-                  buttonColor: kRedColor,
+                  buttonColor: kPrimaryColor,
                   iconSize: 30,
+                  iconColor: kSecondaryColor,
                 ),
                 Spacer(),
                 RoundedIconButton(
@@ -361,8 +365,8 @@ class _CardsStackScreenState extends State<CardsStackScreen>
                   },
                   iconData: Icons.favorite,
                   iconSize: 30,
-                  buttonColor: null,
-                  iconColor: kRedColor,
+                  buttonColor: kPrimaryColor,
+                  iconColor: kSecondaryColor,
                 ),
               ],
             ),
@@ -428,6 +432,5 @@ class _CardsStackScreenState extends State<CardsStackScreen>
         ),
       ],
     );
-  }
-
+  }*/
 }

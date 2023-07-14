@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:salute/data/db/entity/app_user.dart';
 import 'package:salute/ui/widgets/rounded_icon_button.dart';
 import 'package:salute/util/constants.dart';
+import 'dart:ui' as ui;
 
 class SwipeCard extends StatefulWidget {
   final AppUser person;
@@ -33,10 +34,40 @@ class _SwipeCardState extends State<SwipeCard> {
                 });
               },
               itemCount: widget.person.profilePhotoPaths.length,
-              itemBuilder: (context, index) => Image.network(
-                widget.person.profilePhotoPaths[index],
-                fit: BoxFit.fill,
-              ),
+              itemBuilder: (context, index) => Container(
+                color: Colors.white,
+                child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      // Blurred background
+                      ImageFiltered(
+                        imageFilter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                        child: Image.network(
+                          widget.person.profilePhotoPaths[index],
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                      // Main image
+                      Image.network(
+                        widget.person.profilePhotoPaths[index],
+                        fit: BoxFit.fitHeight,
+                        loadingBuilder: (BuildContext context, Widget child,
+                            ImageChunkEvent? loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+              )
+
             ),
           ),
         ),
@@ -71,11 +102,8 @@ class _SwipeCardState extends State<SwipeCard> {
                 ? MediaQuery.of(context).size.height * 0.25
                 : MediaQuery.of(context).size.height * 0.15,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.7),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(25.0),
-                topRight: Radius.circular(25.0),
-              ),
+              gradient: kGrayGradient,
+              borderRadius: BorderRadius.all(Radius.circular(25.0)),
             ),
             child: Column(
               children: [
@@ -102,26 +130,34 @@ class _SwipeCardState extends State<SwipeCard> {
           children: [
             RichText(
                 text: TextSpan(
-                  style: DefaultTextStyle.of(context).style,
+                  style: DefaultTextStyle
+                      .of(context)
+                      .style,
                   children: <TextSpan>[
                     TextSpan(
                       text: widget.person.name,
-                      style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: kPrimaryColor),
                     ),
-                    TextSpan(text: '  ${widget.person.age}', style: TextStyle(fontSize: 20)),
+                    TextSpan(text: '  ${widget.person.age}',
+                        style: TextStyle(fontSize: 30, color: kPrimaryColor)),
                   ],
                 )),
           ],
         ),
         RoundedIconButton(
-          onPressed: () {
-            setState(() {
-              showInfo = !showInfo;
-            });
-          },
-          iconData: showInfo ? Icons.arrow_downward : Icons.person,
-          iconSize: 16,
-          buttonColor: kAccentColor,
+            onPressed: () {
+              setState(() {
+                showInfo = !showInfo;
+              });
+            },
+            iconData: showInfo ? Icons.arrow_downward : null,
+            iconSize: 28,
+            paddingReduce: 14,
+            buttonColor: Colors.transparent,
+            iconColor: kPrimaryColor,
+            imageAsset: 'images/info_icon.png'
         ),
       ],
     );
@@ -155,7 +191,7 @@ class _SwipeCardState extends State<SwipeCard> {
                     widget.person.bio.isNotEmpty
                         ? widget.person.bio
                         : "No bio.",
-                    style: Theme.of(context).textTheme.bodyLarge,
+                    style: TextStyle(fontSize: 16, color: kPrimaryColor),
                   ),
                 ),
               ),

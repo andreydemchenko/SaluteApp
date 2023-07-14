@@ -1,7 +1,10 @@
 //import 'dart:js_interop';
 
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:salute/data/db/entity/chat.dart';
 import 'package:salute/data/db/remote/firebase_auth_source.dart';
@@ -143,27 +146,25 @@ class UserProvider extends ChangeNotifier {
     await SharedPreferencesUtil.removeUserId();
   }
 
-  Future<List<ChatWithUser>> getChatsWithUser(String userId) async {
-    var matches = await _databaseSource.getMatches(userId);
-    List<ChatWithUser> chatWithUserList = [];
+  Stream<List<ChatWithUser>> getChatsWithUserStream(String userId) {
+    return _databaseSource.getMatchesStream(userId).asyncMap((querySnapshot) async {
+      List<ChatWithUser> chatWithUserList = [];
 
-    for (var i = 0; i < matches.size; i++) {
-      Match match = Match.fromSnapshot(matches.docs[i]);
-      AppUser matchedUser =
-          AppUser.fromSnapshot(await _databaseSource.getUser(match.id));
+      for (var doc in querySnapshot.docs) {
+        Match match = Match.fromSnapshot(doc);
+        AppUser matchedUser = AppUser.fromSnapshot(await _databaseSource.getUser(match.id));
+        String chatId = compareAndCombineIds(match.id, userId);
 
-      String chatId = compareAndCombineIds(match.id, userId);
-      print("chatId1 == $chatId");
-      DocumentSnapshot snapshot = await _databaseSource.getChat(chatId);
-      if (!snapshot.exists) {
-        chatId = compareAndCombineIds(userId, match.id);
-        print("chatId2 == $chatId");
-        snapshot = await _databaseSource.getChat(chatId);
+        DocumentSnapshot snapshot = await _databaseSource.getChat(chatId);
+        if (snapshot.exists) {
+          Chat chat = Chat.fromSnapshot(snapshot);
+          ChatWithUser chatWithUser = ChatWithUser(chat, matchedUser);
+          chatWithUserList.add(chatWithUser);
+        }
       }
-      Chat chat = Chat.fromSnapshot(snapshot);
-      ChatWithUser chatWithUser = ChatWithUser(chat, matchedUser);
-      chatWithUserList.add(chatWithUser);
-    }
-    return chatWithUserList;
+
+      return chatWithUserList;
+    });
   }
+
 }

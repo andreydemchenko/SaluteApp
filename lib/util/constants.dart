@@ -18,6 +18,12 @@ const kBackgroundColor = Color(0xFF1D1C1C);
 const kBackgroundColorInt = 0xFF1D1C1C;
 const kFontFamily = 'Nunito';
 
+const kGrayGradient = LinearGradient(
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+  colors: [Colors.transparent, Colors.black],
+);
+
 const kTextTheme = TextTheme(
   displayLarge: TextStyle(),
   bodyLarge: TextStyle(),

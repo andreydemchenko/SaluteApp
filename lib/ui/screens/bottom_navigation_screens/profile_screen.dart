@@ -15,7 +15,6 @@ import '../../widgets/image_grid_view.dart';
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
-  //final Function(List<String>) onPhotosChanged;
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -34,7 +33,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void handleImagePathsChanged(List<String> newImagePaths) {
     _imagePaths = newImagePaths;
-    //widget.onPhotosChanged(_imagePaths);
   }
 
   @override

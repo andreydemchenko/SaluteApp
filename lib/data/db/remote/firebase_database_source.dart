@@ -76,17 +76,21 @@ class FirebaseDatabaseSource {
     return instance.collection('users').doc(userId).collection('matches').get();
   }
 
+  Stream<QuerySnapshot> getMatchesStream(String userId) {
+    return instance.collection('users').doc(userId).collection('matches').snapshots();
+  }
+
   Future<DocumentSnapshot> getChat(String chatId) {
     return instance.collection('chats').doc(chatId).get();
   }
 
-  Future<QuerySnapshot> getPersonsToMatchWith(
+  Stream<QuerySnapshot> getPersonsToMatchWith(
       int limit, List<String> ignoreIds) {
     return instance
         .collection('users')
         .where('id', whereNotIn: ignoreIds)
         .limit(limit)
-        .get();
+        .snapshots();
   }
 
   Future<QuerySnapshot> getSwipes(String userId) {

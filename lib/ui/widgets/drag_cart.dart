@@ -57,7 +57,7 @@ class _DragWidgetState extends State<DragWidget> {
                       child: Transform.rotate(
                         angle: 12,
                         child: TagWidget(
-                          text: 'LIKE',
+                          iconData: Icons.favorite,
                           color: Colors.green[400]!,
                         ),
                       ),
@@ -68,7 +68,7 @@ class _DragWidgetState extends State<DragWidget> {
                       child: Transform.rotate(
                         angle: -12,
                         child: TagWidget(
-                          text: 'DISLIKE',
+                          iconData: Icons.clear,
                           color: Colors.red[400]!,
                         ),
                       ),
@@ -105,14 +105,12 @@ class _DragWidgetState extends State<DragWidget> {
           color: Colors.transparent,
         ),
 
-        //This will be visible when we press action button
         child: ValueListenableBuilder(
             valueListenable: widget.swipeNotifier,
             builder: (BuildContext context, Swipe swipe, Widget? child) {
               return Stack(
                 children: [
                   SwipeCard(person: widget.profile),
-                  // heck if this is the last card and Swipe is not equal to Swipe.none
                   swipe != Swipe.none && widget.isLastCard
                       ? swipe == Swipe.right
                       ? Positioned(
@@ -121,7 +119,7 @@ class _DragWidgetState extends State<DragWidget> {
                     child: Transform.rotate(
                       angle: 12,
                       child: TagWidget(
-                        text: 'LIKE',
+                        iconData: Icons.favorite,
                         color: Colors.green[400]!,
                       ),
                     ),
@@ -132,7 +130,7 @@ class _DragWidgetState extends State<DragWidget> {
                     child: Transform.rotate(
                       angle: -12,
                       child: TagWidget(
-                        text: 'DISLIKE',
+                        iconData: Icons.clear,
                         color: Colors.red[400]!,
                       ),
                     ),

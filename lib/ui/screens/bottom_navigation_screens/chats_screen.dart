@@ -72,50 +72,48 @@ class _ChatsScreenState extends State<ChatsScreen> {
                         return CustomModalProgressHUD(
                           inAsyncCall: user == null || userLoading,
                           offset: null,
-                          child: (userSnapshot.hasData)
-                              ? FutureBuilder<List<ChatWithUser>>(
-                                  future: user != null
-                                      ? userProvider?.getChatsWithUser(user.id)
-                                      : null,
-                                  builder: (context, chatWithUsersSnapshot) {
-                                    if (chatWithUsersSnapshot.data == null &&
-                                        chatWithUsersSnapshot.connectionState !=
-                                            ConnectionState.done) {
-                                      return CustomModalProgressHUD(
-                                        inAsyncCall: true,
-                                        offset: null,
-                                        child: Container(),
-                                      );
-                                    } else {
-                                      List<ChatWithUser> chats =
-                                          chatWithUsersSnapshot.data ?? [];
-                                      chats = chats
-                                          .where((chatWithUser) => chatWithUser
-                                              .user.name
-                                              .toLowerCase()
-                                              .contains(
-                                                  _searchText.toLowerCase()))
-                                          .toList();
-                                      return chats.isEmpty ?? true
-                                          ? Center(
-                                              child: Container(
-                                                child: Text(
-                                                  'No matches',
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .headlineMedium,
-                                                ),
-                                              ),
-                                            )
-                                          : ChatsList(
-                                              chatWithUserList: chats,
-                                              onChatWithUserTap:
-                                                  chatWithUserPressed,
-                                              myUserId: user!.id,
-                                            );
-                                    }
-                                  },
+                          child: (userSnapshot.hasData && user != null)
+                              ? StreamBuilder<List<ChatWithUser>>(
+                            stream: userProvider?.getChatsWithUserStream(user.id),
+                            builder: (context, chatWithUsersSnapshot) {
+                              if (chatWithUsersSnapshot.data == null &&
+                                  chatWithUsersSnapshot.connectionState !=
+                                      ConnectionState.active) {
+                                return CustomModalProgressHUD(
+                                  inAsyncCall: true,
+                                  offset: null,
+                                  child: Container(),
+                                );
+                              } else {
+                                List<ChatWithUser> chats =
+                                    chatWithUsersSnapshot.data ?? [];
+                                chats = chats
+                                    .where((chatWithUser) => chatWithUser
+                                    .user.name
+                                    .toLowerCase()
+                                    .contains(
+                                    _searchText.toLowerCase()))
+                                    .toList();
+                                return chats.isEmpty ?? true
+                                    ? Center(
+                                  child: Container(
+                                    child: Text(
+                                      'No matches',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineMedium,
+                                    ),
+                                  ),
                                 )
+                                    : ChatsList(
+                                  chatWithUserList: chats,
+                                  onChatWithUserTap:
+                                  chatWithUserPressed,
+                                  myUserId: user.id,
+                                );
+                              }
+                            },
+                          )
                               : Container(),
                         );
                       },
@@ -129,4 +127,5 @@ class _ChatsScreenState extends State<ChatsScreen> {
       ),
     );
   }
+
 }

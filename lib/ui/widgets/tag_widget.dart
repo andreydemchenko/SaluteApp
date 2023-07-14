@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 class TagWidget extends StatelessWidget {
   const TagWidget({
     Key? key,
-    required this.text,
+    required this.iconData,
     required this.color,
   }) : super(key: key);
-  final String text;
+  final IconData iconData;
   final Color color;
 
   @override
@@ -22,13 +22,11 @@ class TagWidget extends StatelessWidget {
           ),
         ),
       ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontSize: 36,
-        ),
-      ),
+      child: Icon(
+        iconData,
+        size: 30,
+        color: color,
+      )
     );
   }
 }

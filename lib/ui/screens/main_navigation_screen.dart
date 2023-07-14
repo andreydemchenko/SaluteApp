@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:salute/data/model/main_navigation_item.dart';
 import 'package:salute/ui/screens/bottom_navigation_screens/profile_screen.dart';
 import 'package:salute/util/constants.dart';
+import '../../data/db/entity/app_user.dart';
+import '../widgets/swipe_card.dart';
 import 'bottom_navigation_screens/chats_screen.dart';
 import 'bottom_navigation_screens/cards_stack_screen.dart';
 
@@ -19,6 +21,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   final List<MainNavigationItem> navigationItems = [
     MainNavigationItem(
       screen: CardsStackScreen(),
+      // screen: SwipeCard(person: AppUser(id: "id", name: "jonson", age: 18, profilePhotoPaths: [
+      //   "https://firebasestorage.googleapis.com/v0/b/tinderapp-46361.appspot.com/o/user_photos%2FR1QTRtnMPFNjrGm4WdYZUiUpokY2%2Fphoto_0?alt=media&token=e03325e0-daa3-4d7e-8ac8-f8b9471ef5fc",
+      //   "https://firebasestorage.googleapis.com/v0/b/tinderapp-46361.appspot.com/o/user_photos%2FR1QTRtnMPFNjrGm4WdYZUiUpokY2%2Fphoto_1?alt=media&token=f150d7b7-1c71-4000-b617-6264850e82c7",
+      //    "https://firebasestorage.googleapis.com/v0/b/tinderapp-46361.appspot.com/o/user_photos%2FR1QTRtnMPFNjrGm4WdYZUiUpokY2%2Fphoto_2?alt=media&token=f407bfb5-c4ca-4cea-bfdc-4dad495486dc"],
+      //     gender: Gender.male)),
       imagePath: 'images/cards_icon.png',
     ),
     MainNavigationItem(
@@ -29,11 +36,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     MainNavigationItem(
       title: 'My profile',
       screen: ProfileScreen(),
-      // screen: SwipeCard(person: AppUser(id: "id", name: "jonson", age: 18, profilePhotoPaths: [
-      //   "https://firebasestorage.googleapis.com/v0/b/tinderapp-46361.appspot.com/o/user_photos%2FZ9jdpQkdmBaDDDoxXKbOAn15fsR2%2Fphoto_0?alt=media&token=0a400200-f517-4917-aa99-6b0bf64b8995",
-      //   "https://firebasestorage.googleapis.com/v0/b/tinderapp-46361.appspot.com/o/user_photos%2FZ9jdpQkdmBaDDDoxXKbOAn15fsR2%2Fphoto_1?alt=media&token=ec6e3b2d-f22d-43b3-a1f8-fc3c93499fd2",
-      //    "https://firebasestorage.googleapis.com/v0/b/tinderapp-46361.appspot.com/o/user_photos%2FZ9jdpQkdmBaDDDoxXKbOAn15fsR2%2Fphoto_2?alt=media&token=581e1d13-d3c5-40d7-b7fc-6af6c9b0bcd6"],
-      //     gender: Gender.male)),
       imagePath: 'images/profile_icon.png',
     ),
   ];
