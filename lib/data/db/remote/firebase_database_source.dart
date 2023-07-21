@@ -80,8 +80,8 @@ class FirebaseDatabaseSource {
     return instance.collection('users').doc(userId).collection('matches').snapshots();
   }
 
-  Future<DocumentSnapshot> getChat(String chatId) {
-    return instance.collection('chats').doc(chatId).get();
+  Stream<DocumentSnapshot> getChatStream(String chatId) {
+    return instance.collection('chats').doc(chatId).snapshots();
   }
 
   Stream<QuerySnapshot> getPersonsToMatchWith(

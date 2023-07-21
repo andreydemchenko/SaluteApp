@@ -7,6 +7,7 @@ import 'package:salute/ui/widgets/portrait.dart';
 import 'package:salute/ui/widgets/rounded_button.dart';
 import 'package:salute/ui/widgets/rounded_outlined_button.dart';
 import 'package:salute/util/utils.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MatchedScreen extends StatelessWidget {
   static const String id = 'matched_screen';
@@ -61,13 +62,13 @@ class MatchedScreen extends StatelessWidget {
               Column(
                 children: [
                   RoundedButton(
-                      text: 'SEND MESSAGE',
+                      text: AppLocalizations.of(context)!.sendMessage,
                       onPressed: () {
                         sendMessagePressed(context);
                       }),
                   SizedBox(height: 20),
                   RoundedOutlinedButton(
-                      text: 'KEEP SWIPING',
+                      text: AppLocalizations.of(context)!.keepSwiping,
                       onPressed: () {
                         keepSwipingPressed(context);
                       }),

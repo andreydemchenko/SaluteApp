@@ -51,6 +51,7 @@ class _ChatsListState extends State<ChatsList> {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
+      physics: BouncingScrollPhysics(),
       separatorBuilder: (BuildContext context, int index) =>
           Divider(color: Colors.grey),
       itemCount: widget.chatWithUserList.length,

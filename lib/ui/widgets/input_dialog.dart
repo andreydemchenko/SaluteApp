@@ -31,7 +31,7 @@ class _InputDialogState extends State<InputDialog> {
     return AlertDialog(
       backgroundColor: kPrimaryColor,
       contentPadding: EdgeInsets.all(16.0),
-      content: SingleChildScrollView(  // Wrap your content in a SingleChildScrollView
+      content: SingleChildScrollView(
         child: BorderedTextField(
           textCapitalization: TextCapitalization.sentences,
           labelText: widget.labelText,

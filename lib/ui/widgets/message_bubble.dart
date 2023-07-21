@@ -1,9 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:salute/util/constants.dart';
 import 'package:salute/util/utils.dart';
 
 class MessageBubble extends StatelessWidget {
-  final int epochTimeMs;
+  final DateTime epochTimeMs;
   final String text;
   final bool isSenderMyUser;
   final bool includeTime;

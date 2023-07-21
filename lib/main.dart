@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:salute/ui/screens/chat_screen.dart';
 import 'package:salute/ui/screens/login_screen.dart';
@@ -11,19 +12,57 @@ import 'package:salute/ui/screens/splash_screen.dart';
 import 'package:salute/ui/screens/start_screen.dart';
 import 'package:salute/ui/screens/user_details_screen.dart';
 import 'package:salute/util/constants.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data/db/entity/app_user.dart';
 import 'data/provider/user_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MyApp());
+
 }
 
-class MyApp extends StatelessWidget {
+
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late Locale _currentLocale;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLocale().then((locale) {
+      setState(() {
+        _currentLocale = locale;
+      });
+    });
+  }
+
+  Future<Locale> _loadLocale() async {
+    final prefs = await SharedPreferences.getInstance();
+    final languageCode = prefs.getString('language_code');
+    if (languageCode == null || languageCode.isEmpty) {
+      return Locale('en');
+    } else {
+      return Locale(languageCode);
+    }
+  }
+
+  void _changeLanguage(Locale locale) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('language_code', locale.languageCode);
+    setState(() {
+      _currentLocale = locale;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +72,17 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [ChangeNotifierProvider(create: (context) => UserProvider())],
       child: MaterialApp(
+        locale: _currentLocale,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', ''),
+          Locale('ru', ''),
+        ],
         theme: ThemeData(
           fontFamily: kFontFamily,
           indicatorColor: kAccentColor,
@@ -70,7 +120,9 @@ class MyApp extends StatelessWidget {
           StartScreen.id: (context) => StartScreen(),
           LoginScreen.id: (context) => LoginScreen(),
           RegisterScreen.id: (context) => RegisterScreen(),
-          MainNavigationScreen.id: (context) => MainNavigationScreen(),
+          MainNavigationScreen.id: (context) => MainNavigationScreen(
+            onLocaleChange: _changeLanguage,
+          ),
           MatchedScreen.id: (context) => MatchedScreen(
                 myProfilePhotoPath: (ModalRoute.of(context)?.settings.arguments
                     as Map)['my_profile_photo_path'],

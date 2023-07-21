@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../data/db/entity/app_user.dart';
 
 class GenderSelectionScreen extends StatefulWidget {
@@ -26,7 +26,7 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          'Select gender',
+          AppLocalizations.of(context)!.selectGender,
           style: Theme
               .of(context)
               .textTheme
@@ -43,15 +43,15 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
                     ? Colors.blue[200]
                     : Colors.white,
                 child: Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: EdgeInsets.all(20.0),
                   child: Column(
-                    children: const <Widget>[
+                    children: <Widget>[
                       Icon(
                         Icons.male,
                         size: 80,
                       ),
                       Text(
-                        "Male",
+                        AppLocalizations.of(context)!.male,
                         style: TextStyle(
                           fontSize: 20,
                         ),
@@ -69,15 +69,15 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
                     ? Colors.pink[200]
                     : Colors.white,
                 child: Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: EdgeInsets.all(20.0),
                   child: Column(
-                    children: const <Widget>[
+                    children: <Widget>[
                       Icon(
                         Icons.female,
                         size: 80,
                       ),
                       Text(
-                        "Female",
+                        AppLocalizations.of(context)!.female,
                         style: TextStyle(
                           fontSize: 20,
                         ),

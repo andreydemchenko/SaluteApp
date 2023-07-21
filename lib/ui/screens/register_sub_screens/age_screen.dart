@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AgeScreen extends StatefulWidget {
   final Function(int) onChanged;
@@ -17,40 +18,32 @@ class _AgeScreenState extends State<AgeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'My',
-                style: Theme.of(context).textTheme.displaySmall,
-              ),
-              Text(
-                'age is',
-                style: Theme.of(context).textTheme.displaySmall,
-              ),
-            ],
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.myAgeIs,
+              style: Theme.of(context).textTheme.displaySmall,
+            )
+          ],
         ),
         Expanded(
           child: Center(
-            child: Container(
-              child: NumberPicker(
-                itemWidth: double.infinity,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white, width: 2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  value: age,
-                  minValue: 10,
-                  maxValue: 120,
-                  onChanged: (value) => {
-                        setState(() {
-                          age = value;
-                        }),
-                        widget.onChanged(value)
+            child: NumberPicker(
+              itemWidth: double.infinity,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white, width: 2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                value: age,
+                minValue: 10,
+                maxValue: 120,
+                onChanged: (value) => {
+                      setState(() {
+                        age = value;
                       }),
-            ),
+                      widget.onChanged(value)
+                    }),
           ),
         ),
       ],

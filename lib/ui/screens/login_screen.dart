@@ -8,6 +8,7 @@ import 'package:salute/ui/widgets/bordered_text_field.dart';
 import 'package:salute/ui/widgets/custom_modal_progress_hud.dart';
 import 'package:salute/ui/widgets/rounded_button.dart';
 import 'package:salute/util/constants.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -69,24 +70,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Login to your account',
+                    AppLocalizations.of(context)!.loginToAccount,
                     style: Theme.of(context).textTheme.displaySmall,
                   ),
                   SizedBox(height: 40),
                   BorderedTextField(
-                    labelText: 'Email',
+                    labelText: AppLocalizations.of(context)!.email,
                     keyboardType: TextInputType.emailAddress,
                     onChanged: (value) => _inputEmail = value,
                   ),
                   SizedBox(height: 5),
                   BorderedTextField(
-                    labelText: 'Password',
+                    labelText: AppLocalizations.of(context)!.password,
                     obscureText: true,
                     keyboardType: TextInputType.text,
                     onChanged: (value) => _inputPassword = value,
                   ),
                   Expanded(child: Container()),
-                  RoundedButton(text: 'LOGIN', onPressed: () { loginPressed(); })
+                  RoundedButton(text: AppLocalizations.of(context)!.login, onPressed: () { loginPressed(); })
                 ],
               ),
             ),

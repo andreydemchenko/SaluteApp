@@ -1,4 +1,5 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -18,8 +19,9 @@ String compareAndCombineIds(String userID1, String userID2) {
   }
 }
 
-String convertEpochMsToDateTime(int epochMs) {
+String convertEpochMsToDateTime(DateTime dateTime) {
   int oneDayInMs = 86400000;
+  int epochMs = dateTime.millisecondsSinceEpoch;
   var date = DateTime.fromMillisecondsSinceEpoch(epochMs);
   int currentTimeMs = DateTime.now().millisecondsSinceEpoch;
   if ((currentTimeMs - epochMs) >= oneDayInMs) {

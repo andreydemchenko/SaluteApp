@@ -3,6 +3,7 @@ import 'package:salute/data/db/entity/app_user.dart';
 import 'package:salute/ui/widgets/rounded_icon_button.dart';
 import 'package:salute/util/constants.dart';
 import 'dart:ui' as ui;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SwipeCard extends StatefulWidget {
   final AppUser person;
@@ -190,7 +191,7 @@ class _SwipeCardState extends State<SwipeCard> {
                   child: Text(
                     widget.person.bio.isNotEmpty
                         ? widget.person.bio
-                        : "No bio.",
+                        : AppLocalizations.of(context)!.noBio,
                     style: TextStyle(fontSize: 16, color: kPrimaryColor),
                   ),
                 ),

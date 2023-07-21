@@ -74,14 +74,14 @@ class ChatListTile extends StatelessWidget {
             style: TextStyle(fontSize: 16),
           ),
         ),
-        Container(
-            child: Text(
-                chatWithUser.chat.lastMessage == null
-                    ? ''
-                    : convertEpochMsToDateTime(
-                        chatWithUser.chat.lastMessage!.epochTimeMs),
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12))),
+        Text(
+            chatWithUser.chat.lastMessage == null
+                ? ''
+                : convertEpochMsToDateTime(
+                    chatWithUser.chat.lastMessage!.epochTimeMs),
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12)
+        ),
       ],
     );
   }

@@ -1,5 +1,4 @@
-
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -44,7 +43,7 @@ class ChatScreen extends StatelessWidget {
     int halfHourInMilli = 1800000;
 
     if (messageBefore != null) {
-      if ((messageBefore.epochTimeMs - currMessage.epochTimeMs).abs() >
+      if ((messageBefore.epochTimeMs.millisecondsSinceEpoch - currMessage.epochTimeMs.millisecondsSinceEpoch).abs() >
           halfHourInMilli) {
         return true;
       }
@@ -94,8 +93,8 @@ class ChatScreen extends StatelessWidget {
       final epochTimeMs = epochTimes[i];
       const seen = false;
 
-      final message = Message(epochTimeMs, seen, senderId, text);
-      messages.add(message);
+      // final message = Message(epochTimeMs, seen, senderId, text);
+      // messages.add(message);
     }
 
     // Ensure messages are ordered by time
@@ -170,6 +169,7 @@ class ChatScreen extends StatelessWidget {
                                 }
                                 return messages.isNotEmpty
                                     ? ListView.builder(
+                                        physics: BouncingScrollPhysics(),
                                         shrinkWrap: true,
                                         reverse: true,
                                         controller: _scrollController,
@@ -223,12 +223,9 @@ class ChatScreen extends StatelessWidget {
   }
 
   void sendMessage(String myUserId) {
-    int timestamp = DateTime.now().millisecondsSinceEpoch;
-    print("time sent === $timestamp");
-
     if (messageTextController.text.isEmpty) return;
 
-    Message message = Message(DateTime.now().millisecondsSinceEpoch, false,
+    Message message = Message(DateTime.now(), false,
         myUserId, messageTextController.text);
     Chat updatedChat = Chat(chatId, message);
     _databaseSource.addMessage(chatId, message);
@@ -252,7 +249,7 @@ class ChatScreen extends StatelessWidget {
                 textCapitalization: TextCapitalization.sentences,
                 style: const TextStyle(color: kSecondaryColor),
                 decoration: InputDecoration(
-                    labelText: 'Message',
+                    labelText: AppLocalizations.of(context)!.message,
                     labelStyle:
                         TextStyle(color: kSecondaryColor.withOpacity(0.5)),
                     contentPadding: const EdgeInsets.only(left: 12)),

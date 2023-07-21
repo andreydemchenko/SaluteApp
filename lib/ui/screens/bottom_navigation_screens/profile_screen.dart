@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:salute/data/db/entity/app_user.dart';
@@ -9,11 +11,14 @@ import 'package:salute/ui/widgets/rounded_button.dart';
 import 'package:salute/ui/widgets/rounded_icon_button.dart';
 import 'package:salute/ui/widgets/rounded_outlined_button.dart';
 import 'package:salute/util/constants.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../widgets/city_input_dialog.dart';
 import '../../widgets/image_grid_view.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final Function(Locale) onLocaleChange;
+  const ProfileScreen({super.key, required this.onLocaleChange});
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
@@ -37,9 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      body: Container(
+    return Container(
         padding: EdgeInsets.only(
           left: 18.0,
           right: 18.0,
@@ -59,6 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             Expanded(
                               child: SingleChildScrollView(
+                                physics: BouncingScrollPhysics(),
                                 child: Column(
                                   children: [
                                     _showGridView
@@ -78,11 +82,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     getCity(userSnapshot.data!, userProvider),
                                     SizedBox(height: 20),
                                     getBio(userSnapshot.data!, userProvider),
-                                    SizedBox(height: 40),
+                                    SizedBox(height: 20),
+                                    getLanguage(),
+                                    SizedBox(height: 120),
                                     Align(
                                       alignment: Alignment.bottomCenter,
                                       child: RoundedButton(
-                                        text: 'LOGOUT',
+                                        text: AppLocalizations.of(context)!.logout,
                                         onPressed: () {
                                           logoutPressed(userProvider, context);
                                         },
@@ -98,6 +104,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               });
         }),
+
+    );
+  }
+
+  Widget getLanguage() {
+    return GestureDetector(
+      onTap: () {
+        showModalBottomSheet(
+            context: context,
+            builder: (BuildContext bc) {
+              return Wrap(
+                children: <Widget>[
+                  ListTile(
+                    leading: Icon(Icons.language),
+                    title: Text(AppLocalizations.of(context)!.english),
+                    trailing: Localizations.localeOf(context).languageCode == 'en'
+                        ? Icon(Icons.check)
+                        : null,
+                    onTap: () {
+                      widget.onLocaleChange(Locale('en'));
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.language),
+                    title: Text(AppLocalizations.of(context)!.russian),
+                    trailing: Localizations.localeOf(context).languageCode == 'ru'
+                        ? Icon(Icons.check)
+                        : null,
+                    onTap: () {
+                      widget.onLocaleChange(Locale('ru'));
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              );
+            }
+        );
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+              AppLocalizations.of(context)!.myLanguage,
+            style: Theme.of(context)
+                .textTheme
+                .headlineMedium
+                ?.copyWith(color: kBackgroundColor)
+          ),
+          Text(
+            Localizations.localeOf(context).languageCode == 'en' ? AppLocalizations.of(context)!.english : AppLocalizations.of(context)!.russian,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ],
       ),
     );
   }
@@ -109,7 +169,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Bio',
+            Text(AppLocalizations.of(context)!.bio,
                 style: Theme.of(context)
                     .textTheme
                     .headlineMedium
@@ -120,7 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context: context,
                   builder: (_) => InputDialog(
                     onSavePressed: (value) => userProvider.updateUserBio(value),
-                    labelText: 'Bio',
+                    labelText: AppLocalizations.of(context)!.bio,
                     startInputText: user.bio,
                   ),
                 );
@@ -134,7 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         SizedBox(height: 5),
         Text(
-          user.bio.trim().isNotEmpty ? user.bio : "No bio.",
+          user.bio.trim().isNotEmpty ? user.bio : AppLocalizations.of(context)!.noBio,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
       ],
@@ -223,7 +283,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _showGridView = false;
                       });
                     },
-                    child: Text('Cancel'),
+                    child: Text(AppLocalizations.of(context)!.cancel),
                   ),
 
                   //SizedBox(width: 16),
@@ -238,7 +298,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 })
                             }
                         : () {},
-                    child: Text('Save'),
+                    child: Text(AppLocalizations.of(context)!.save),
                   ),
                 ],
               ),
@@ -256,7 +316,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('City',
+            Text(AppLocalizations.of(context)!.city,
                 style: Theme.of(context)
                     .textTheme
                     .headlineMedium
@@ -266,11 +326,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onPressed: () {
                       showDialog(
                         context: context,
-                        builder: (_) => InputDialog(
+                        builder: (_) => CityInputDialog(
+                          labelText: user.city,
                           onSavePressed: (value) =>
                               userProvider.updateUserCity(value),
-                          labelText: 'City',
-                          startInputText: user.city,
                         ),
                       );
                     },
@@ -290,15 +349,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: 140,
               height: 30,
               child: RoundedOutlinedButton(
-                text: 'Set your city',
+                text: AppLocalizations.of(context)!.setYourCity,
                 onPressed: () {
                   showDialog(
                     context: context,
-                    builder: (_) => InputDialog(
+                    builder: (_) => CityInputDialog(
+                      labelText: '',
                       onSavePressed: (value) =>
                           userProvider.updateUserCity(value),
-                      labelText: 'City',
-                      startInputText: user.city,
                     ),
                   );
                 },

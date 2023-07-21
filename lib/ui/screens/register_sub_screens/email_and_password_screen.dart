@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:salute/ui/widgets/bordered_text_field.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class EmailAndPasswordScreen extends StatelessWidget {
   final Function(String) emailOnChanged;
@@ -14,22 +15,18 @@ class EmailAndPasswordScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'My Email and',
-          style: Theme.of(context).textTheme.displaySmall,
-        ),
-        Text(
-          'Password is',
+          AppLocalizations.of(context)!.myEmailAndPassword,
           style: Theme.of(context).textTheme.displaySmall,
         ),
         SizedBox(height: 25),
         BorderedTextField(
-          labelText: 'Email',
+          labelText: AppLocalizations.of(context)!.email,
           onChanged: emailOnChanged,
           keyboardType: TextInputType.emailAddress,
         ),
         SizedBox(height: 5),
         BorderedTextField(
-          labelText: 'Password',
+          labelText: AppLocalizations.of(context)!.password,
           onChanged: passwordOnChanged,
           obscureText: true,
         ),

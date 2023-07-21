@@ -1,9 +1,14 @@
 //import 'dart:js_interop';
 
+import 'dart:async';
 import 'dart:developer';
+import 'package:async/async.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:collection/collection.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:salute/data/db/entity/chat.dart';
@@ -35,7 +40,12 @@ class UserProvider extends ChangeNotifier {
     if (response is Success<UserCredential>) {
       String? id = response.value.user?.uid;
       if (id != null) {
-        SharedPreferencesUtil.setUserId(id);
+       // if (response.value.user!.emailVerified) {
+          SharedPreferencesUtil.setUserId(id);
+        // } else {
+        //   showSnackBar(errorScaffoldKey, "Please verify your email before logging in.");
+        //   return Response.error("Email not verified.");
+        // }
       }
     } else if (response is Error) {
       showSnackBar(errorScaffoldKey, response.message);
@@ -43,7 +53,7 @@ class UserProvider extends ChangeNotifier {
     return response;
   }
 
-  Future<Response> registerUser(UserRegistration userRegistration,
+  /*Future<Response> registerUser(UserRegistration userRegistration,
       GlobalKey<ScaffoldState> errorScaffoldKey) async {
     Response<dynamic> response = await _authSource.register(
         userRegistration.email, userRegistration.password);
@@ -71,6 +81,146 @@ class UserProvider extends ChangeNotifier {
     }
     if (response is Error) showSnackBar(errorScaffoldKey, response.message);
     return response;
+  }*/
+
+  /*Future<Response> registerUser(UserRegistration userRegistration,
+      GlobalKey<ScaffoldState> errorScaffoldKey) async {
+    Response<dynamic> response = await _authSource.register(
+        userRegistration.email, userRegistration.password);
+    if (response is Success<UserCredential>) {
+      String? id = (response).value.user?.uid;
+      if (id != null) {
+        Response<dynamic> verifyResponse = await _authSource
+            .sendEmailVerification(response.value.user!);
+        if (verifyResponse is Error) {
+          showSnackBar(errorScaffoldKey, verifyResponse.message);
+        } else {
+          response = await _storageSource.uploadUserProfilePhotos(
+              userRegistration.localProfilePhotoPaths, id);
+
+          if (response is Success<List<String>>) {
+            List<String> profilePhotoUrls = response.value;
+            AppUser user = AppUser(
+                id: id,
+                name: userRegistration.name,
+                age: userRegistration.age,
+                profilePhotoPaths: profilePhotoUrls,
+                gender: userRegistration.gender!
+            );
+            _databaseSource.addUser(user);
+            SharedPreferencesUtil.setUserId(id);
+            _user = _user;
+            return Response.success(user);
+          }
+        }
+      }
+    }
+    if (response is Error) showSnackBar(errorScaffoldKey, response.message);
+    return response;
+  }*/
+
+  String? _emailLink;
+
+  Future<void> retrieveDynamicLink() async {
+    final PendingDynamicLinkData? data = await FirebaseDynamicLinks.instance.getInitialLink();
+    _handleDynamicLink(data);
+  }
+
+  void _handleDynamicLink(PendingDynamicLinkData? data) {
+    final Uri? deepLink = data?.link;
+    if (deepLink != null) {
+      _emailLink = deepLink.toString();
+      notifyListeners();  // optional
+    }
+  }
+
+  Future<Response> sendVerificationLink(String email) async {
+    ActionCodeSettings actionCodeSettings = ActionCodeSettings(
+      url: 'https://demdev.page.link/verify',
+      handleCodeInApp: true,
+      androidPackageName: 'com.demdev.salute',
+      androidInstallApp: true,
+      androidMinimumVersion: '12',
+      iOSBundleId: 'com.demdev.salute',
+    );
+
+    Response<dynamic> response = await _authSource.sendSignInLinkToEmail(
+        email, actionCodeSettings);
+    SharedPreferencesUtil.setUserId(email);
+    return response;
+  }
+
+  void confirmEmailLink(UserRegistration userRegistration, GlobalKey<ScaffoldState> errorScaffoldKey) async {
+    Response<dynamic> response = await _authSource.signInWithEmailLink(userRegistration.email, _emailLink!);
+    if (response is Success<UserCredential>) {
+      Response passwordResponse = await updatePassword(userRegistration.password);
+      if (passwordResponse is Success<User>) {
+        _completeRegistration(userRegistration, errorScaffoldKey);
+      } else if (passwordResponse is Error) {
+        showSnackBar(errorScaffoldKey, passwordResponse.message);
+      }
+    } else if (response is Error) {
+      showSnackBar(errorScaffoldKey, response.message);
+    }
+  }
+
+  Future<Response> updatePassword(String password) async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      await user?.updatePassword(password);
+      return Response.success(user);
+    } catch (e) {
+      return Response.error(((e as FirebaseException).message ?? e.toString()));
+    }
+  }
+
+  void _completeRegistration(UserRegistration userRegistration, GlobalKey<ScaffoldState> errorScaffoldKey) async {
+    Response<dynamic> response = await _authSource.register(
+        userRegistration.email, userRegistration.password);
+
+    if (response is Success<UserCredential>) {
+      String? id = response.value.user?.uid;
+      if (id != null) {
+        response = await _storageSource.uploadUserProfilePhotos(
+            userRegistration.localProfilePhotoPaths, id);
+
+        if (response is Success<List<String>>) {
+          List<String> profilePhotoUrls = response.value;
+          AppUser user = AppUser(
+              id: id,
+              name: userRegistration.name,
+              age: userRegistration.age,
+              profilePhotoPaths: profilePhotoUrls,
+              gender: userRegistration.gender!
+          );
+          _databaseSource.addUser(user);
+          SharedPreferencesUtil.setUserId(id);
+          _user = _user;
+        }
+      }
+    }
+    if (response is Error) showSnackBar(errorScaffoldKey, response.message);
+  }
+
+  StreamSubscription<bool>? emailVerificationSubscription;
+  bool _isEmailVerified = false;
+  bool get isEmailVerified => _isEmailVerified;
+
+  void startCheckingEmailVerified(UserRegistration userRegistration, GlobalKey<ScaffoldState> errorScaffoldKey) {
+    emailVerificationSubscription = _authSource.checkEmailVerified().listen((isEmailVerified) {
+      if (isEmailVerified) {
+        emailVerificationSubscription?.cancel();
+        _isEmailVerified = isEmailVerified;
+        notifyListeners();
+        _completeRegistration(userRegistration, errorScaffoldKey);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    emailVerificationSubscription?.cancel();
+    super.dispose();
   }
 
   Future<AppUser?> _getUser() async {
@@ -147,23 +297,31 @@ class UserProvider extends ChangeNotifier {
   }
 
   Stream<List<ChatWithUser>> getChatsWithUserStream(String userId) {
-    return _databaseSource.getMatchesStream(userId).asyncMap((querySnapshot) async {
-      List<ChatWithUser> chatWithUserList = [];
-
+    return _databaseSource.getMatchesStream(userId).switchMap((querySnapshot) async* {
+      List<Stream<ChatWithUser>> chatWithUsers = [];
       for (var doc in querySnapshot.docs) {
         Match match = Match.fromSnapshot(doc);
-        AppUser matchedUser = AppUser.fromSnapshot(await _databaseSource.getUser(match.id));
+        AppUser matchedUser = await _databaseSource.getUser(match.id).then((snapshot) => AppUser.fromSnapshot(snapshot));
         String chatId = compareAndCombineIds(match.id, userId);
-
-        DocumentSnapshot snapshot = await _databaseSource.getChat(chatId);
-        if (snapshot.exists) {
-          Chat chat = Chat.fromSnapshot(snapshot);
-          ChatWithUser chatWithUser = ChatWithUser(chat, matchedUser);
-          chatWithUserList.add(chatWithUser);
-        }
+        chatWithUsers.add(_databaseSource.getChatStream(chatId).map((snapshot) => ChatWithUser(Chat.fromSnapshot(snapshot), matchedUser)));
       }
 
-      return chatWithUserList;
+      // Listen to all chat streams at once
+      yield* StreamGroup.merge<ChatWithUser>(chatWithUsers).scan((List<ChatWithUser> accumulator, ChatWithUser value, int index) {
+        // Search for existing chat with user
+        final existingChatWithUser = accumulator.firstWhereOrNull((chatWithUser) => chatWithUser.chat.id == value.chat.id);
+
+        if (existingChatWithUser == null) {
+          // If not exists, add new chat with user
+          accumulator.add(value);
+        } else {
+          // If exists, update the existing chat
+          final existingIndex = accumulator.indexOf(existingChatWithUser);
+          accumulator[existingIndex] = value;
+        }
+
+        return accumulator;
+      }, []);
     });
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../data/db/entity/app_user.dart';
 import '../../util/constants.dart';
 import 'dart:ui' as ui;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class UserDetailsScreen extends StatefulWidget {
   final AppUser user;
@@ -21,7 +22,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("User Details"),
+        title: Text(AppLocalizations.of(context)!.userDetails),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,7 +101,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                   Text(
                     widget.user.bio.trim().isNotEmpty
                         ? widget.user.bio
-                        : "No bio",
+                        : AppLocalizations.of(context)!.noBio,
                     style: Theme.of(context)
                         .textTheme.bodyLarge
                         ?.copyWith(color: kAccentColor),
@@ -112,7 +113,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                             Padding(
                               padding: EdgeInsets.only(right: 8.0),
                               child: Text(
-                                'City:',
+                                AppLocalizations.of(context)!.city,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge

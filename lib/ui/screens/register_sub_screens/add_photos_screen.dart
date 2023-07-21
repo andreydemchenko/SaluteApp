@@ -1,7 +1,8 @@
 
 import 'package:flutter/material.dart';
-
 import '../../widgets/image_grid_view.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class AddPhotosScreen extends StatefulWidget {
   final Function(List<String>) onPhotosChanged;
 
@@ -26,11 +27,11 @@ class _AddPhotosScreenState extends State<AddPhotosScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            'Add photos',
+            AppLocalizations.of(context)!.addPhotos,
             style: Theme.of(context).textTheme.displaySmall,
           ),
           Text(
-            'Add at least 1 image',
+            AppLocalizations.of(context)!.addLeastOneImage,
             style: Theme.of(context).textTheme.labelMedium,
           ),
           Expanded(
