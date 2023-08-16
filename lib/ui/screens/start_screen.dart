@@ -23,7 +23,7 @@ class StartScreen extends StatelessWidget {
           fit: StackFit.expand,
           children: <Widget>[
             ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaY: 2, sigmaX: 1),
+              imageFilter: ImageFilter.blur(sigmaY: 0.5, sigmaX: 0.5),
               child: Image.asset(
                 'images/shapes_background.png',
                 fit: BoxFit.cover,
@@ -44,16 +44,15 @@ class StartScreen extends StatelessWidget {
                       child: Image.asset('images/blue_salute_logo.png'),
                     ),
                     //Expanded(child: Container()),
-                    SizedBox(height: 30),
+                    SizedBox(height: 20),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: Text(
-                        'Salute!',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.displayLarge?.copyWith(color: kPrimaryColor),
+                      padding: EdgeInsets.symmetric(horizontal: 30),
+                      child:   SizedBox(
+                        height: 80.0,
+                        child: Image.asset('images/salute_text.png'),
                       ),
                     ),
-                    SizedBox(height: 60),
+                    SizedBox(height: 80),
                     RoundedButton(
                       buttonColor: kPrimaryColor,
                       text: AppLocalizations.of(context)!.createAccount,

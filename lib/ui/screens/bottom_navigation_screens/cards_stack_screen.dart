@@ -102,109 +102,123 @@ class _CardsStackScreenState extends State<CardsStackScreen>
   @override
   Widget build(BuildContext buildContext) {
     return Consumer<UserProvider?>(
-        builder: (context, userProvider, child) {
-          return FutureBuilder<AppUser?>(
-            future: userProvider?.user,
-            builder: (context, userSnapshot) {
-              return CustomModalProgressHUD(
-                inAsyncCall: userProvider == null || userProvider.isLoading,
-                offset: null,
-                child: (userSnapshot.hasData)
-                    ? StreamBuilder<List<AppUser>>(
-                        stream: usersStream(userProvider?.userId ?? ''),
-                        builder: (context, snapshot) {
-                          return CustomModalProgressHUD(
-                              inAsyncCall: snapshot.connectionState ==
-                                  ConnectionState.waiting,
-                              offset: null,
-                              child: (snapshot.hasData)
-                                  ? Stack(clipBehavior: Clip.none, children: [
-                                      SwipeCards(
-                                        matchEngine: MatchEngine(
-                                            swipeItems:
-                                                snapshot.data!.map((user) {
-                                          return SwipeItem(
-                                              content: SwipeCard(person: user),
-                                              likeAction: () {
-                                                log("like ${user.name}");
-                                                personSwiped(userSnapshot.data!,
-                                                    user, true);
+      builder: (context, userProvider, child) {
+        return FutureBuilder<AppUser?>(
+          future: userProvider?.user,
+          builder: (context, userSnapshot) {
+            return CustomModalProgressHUD(
+              inAsyncCall: userProvider == null || userProvider.isLoading,
+              offset: null,
+              child: (userSnapshot.hasData)
+                  ? StreamBuilder<List<AppUser>>(
+                      stream: usersStream(userProvider?.userId ?? ''),
+                      builder: (context, snapshot) {
+                        return CustomModalProgressHUD(
+                            inAsyncCall: snapshot.connectionState ==
+                                ConnectionState.waiting,
+                            offset: null,
+                            child: (snapshot.hasData)
+                                ? Stack(clipBehavior: Clip.none, children: [
+                                    SwipeCards(
+                                      matchEngine: MatchEngine(
+                                          swipeItems:
+                                              snapshot.data!.map((user) {
+                                        return SwipeItem(
+                                            content: SwipeCard(person: user),
+                                            likeAction: () {
+                                              log("like ${user.name}");
+                                              personSwiped(userSnapshot.data!,
+                                                  user, true);
+                                            },
+                                            nopeAction: () {
+                                              log("dislike ${user.name}");
+                                              personSwiped(userSnapshot.data!,
+                                                  user, false);
+                                            });
+                                      }).toList()),
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        otherUser = snapshot.data![index];
+                                        return Center(
+                                            child: SwipeCard(
+                                                person: snapshot.data![index]));
+                                      },
+                                      onStackFinished: () {
+                                        Center(
+                                            child: Text(
+                                                AppLocalizations.of(context)!
+                                                    .noMoreUsers,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .headlineMedium));
+                                      },
+                                      upSwipeAllowed: false,
+                                    ),
+                                    snapshot.data!.isNotEmpty ?
+                                    Positioned(
+                                      bottom: 10,
+                                      left: 20,
+                                      right: 20,
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 12.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            RoundedIconButton(
+                                              onPressed: () {
+                                                if (otherUser != null) {
+                                                  personSwiped(
+                                                      userSnapshot.data!,
+                                                      otherUser!,
+                                                      false);
+                                                }
                                               },
-                                              nopeAction: () {
-                                                log("dislike ${user.name}");
-                                                personSwiped(userSnapshot.data!,
-                                                    user, false);
-                                              });
-                                        }).toList()),
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          otherUser = snapshot.data![index];
-                                          return Center(
-                                              child: SwipeCard(
-                                                  person:
-                                                      snapshot.data![index]));
-                                        },
-                                        onStackFinished: () {
-                                          Center(
-                                              child: Text(AppLocalizations.of(context)!.noMoreUsers,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .headlineMedium));
-                                        },
-                                        upSwipeAllowed: false,
-                                      ),
-                                      Positioned(
-                                        bottom: 10,
-                                        left: 20,
-                                        right: 20,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              bottom: 12.0),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              RoundedIconButton(
-                                                onPressed: () {
-                                                  if (otherUser != null) {
-                                                    personSwiped(
-                                                        userSnapshot.data!,
-                                                        otherUser!,
-                                                        false);
-                                                  }
-                                                },
-                                                iconData: Icons.clear,
-                                                buttonColor: kPrimaryColor,
-                                                iconSize: 34,
-                                                iconColor: kSecondaryColor,
-                                              ),
-                                              SizedBox(width: 18),
-                                              RoundedIconButton(
-                                                onPressed: () {
-                                                  if (otherUser != null) {
-                                                    personSwiped(
-                                                        userSnapshot.data!,
-                                                        otherUser!,
-                                                        true);
-                                                  }
-                                                },
-                                                iconData: Icons.favorite,
-                                                iconSize: 34,
-                                                buttonColor: kPrimaryColor,
-                                                iconColor: kSecondaryColor,
-                                              ),
-                                            ],
-                                          ),
+                                              iconData: Icons.clear,
+                                              buttonColor: kPrimaryColor,
+                                              iconSize: 34,
+                                              iconColor: kSecondaryColor,
+                                            ),
+                                            SizedBox(width: 18),
+                                            RoundedIconButton(
+                                              onPressed: () {
+                                                if (otherUser != null) {
+                                                  personSwiped(
+                                                      userSnapshot.data!,
+                                                      otherUser!,
+                                                      true);
+                                                }
+                                              },
+                                              iconData: Icons.favorite,
+                                              iconSize: 34,
+                                              buttonColor: kPrimaryColor,
+                                              iconColor: kSecondaryColor,
+                                            ),
+                                          ],
                                         ),
-                                      )
-                                    ])
-                                  : Container());
-                        })
-                    : Container(),
-              );
-            },
-          );
-        },
+                                      ),
+                                    ) : Center(
+                                        child: Text(
+                                            AppLocalizations.of(context)!
+                                                .noMoreUsers,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headlineMedium))
+                                  ])
+                                : Center(
+                                    child: Text(
+                                        AppLocalizations.of(context)!
+                                            .noMoreUsers,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineMedium)));
+                      })
+                  : Container(),
+            );
+          },
+        );
+      },
     );
   }
 

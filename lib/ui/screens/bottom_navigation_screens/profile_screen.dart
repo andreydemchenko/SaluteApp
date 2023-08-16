@@ -1,7 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:rive/math.dart';
+import 'package:rive/rive.dart';
 import 'package:salute/data/db/entity/app_user.dart';
 import 'package:salute/data/provider/user_provider.dart';
 import 'package:salute/ui/screens/start_screen.dart';
@@ -15,6 +18,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../widgets/city_input_dialog.dart';
 import '../../widgets/image_grid_view.dart';
+import '../matched_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Function(Locale) onLocaleChange;
@@ -36,8 +40,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Navigator.pushNamed(context, StartScreen.id);
   }
 
+  Artboard? _riveArtboard;
+
+  Future<void> _load() async {
+    // You need to manage adding the controller to the artboard yourself,
+    // unlike with the RiveAnimation widget that can handle a lot of this logic
+    // for you by simply providing the state machine (or animation) name.
+    final file = await RiveFile.asset('animations/like.riv');
+    final artboard = file.mainArtboard;
+    final controller = StateMachineController.fromArtboard(
+      artboard,
+      'State Machine 1',
+    );
+    artboard.addController(controller!);
+    setState(() => _riveArtboard = artboard);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
   void handleImagePathsChanged(List<String> newImagePaths) {
     _imagePaths = newImagePaths;
+  }
+
+  void open() {
+    Navigator.pushNamed(context, MatchedScreen.id, arguments: {
+      "my_user_id": "R1QTRtnMPFNjrGm4WdYZUiUpokY2",
+      "my_profile_photo_path":
+      "https://firebasestorage.googleapis.com/v0/b/tinderapp-46361.appspot.com/o/user_photos%2FR1QTRtnMPFNjrGm4WdYZUiUpokY2%2Fphoto_0?alt=media&token=e03325e0-daa3-4d7e-8ac8-f8b9471ef5fc",
+      "other_user_profile_photo_path":
+      "https://firebasestorage.googleapis.com/v0/b/tinderapp-46361.appspot.com/o/user_photos%2FYfxNUkx9IbhiJfFdLIEw4UMJ8By1%2Fphoto_0?alt=media&token=5ed66989-959e-49af-add2-b8b2c827c3d8",
+      "other_user_id": "YfxNUkx9IbhiJfFdLIEw4UMJ8By1"
+    });
   }
 
   @override
@@ -176,14 +213,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ?.copyWith(color: kBackgroundColor)),
             RoundedIconButton(
               onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => InputDialog(
-                    onSavePressed: (value) => userProvider.updateUserBio(value),
-                    labelText: AppLocalizations.of(context)!.bio,
-                    startInputText: user.bio,
-                  ),
-                );
+                open();
+                // showDialog(
+                //   context: context,
+                //   builder: (_) => InputDialog(
+                //     onSavePressed: (value) => userProvider.updateUserBio(value),
+                //     labelText: AppLocalizations.of(context)!.bio,
+                //     startInputText: user.bio,
+                //   ),
+                // );
               },
               iconData: Icons.edit,
               iconSize: 18,
@@ -369,6 +407,76 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: Theme.of(context).textTheme.bodyLarge,
           ),
       ],
+    );
+  }
+}
+
+class MyAnimationWidget extends StatefulWidget {
+  @override
+  _MyAnimationWidgetState createState() => _MyAnimationWidgetState();
+}
+
+class _MyAnimationWidgetState extends State<MyAnimationWidget> {
+  Future<Artboard>? _artboard;
+  SMIBool? _input;
+
+  @override
+  void initState() {
+    super.initState();
+    _artboard = _loadRiveFile();
+  }
+
+  Future<Artboard> _loadRiveFile() async {
+    try {
+      final file = await RiveFile.asset('animations/like.riv');
+      final artboard = file.mainArtboard;
+      var controller = StateMachineController.fromArtboard(artboard, 'State Machine 1', onStateChange: _onStateChange);
+
+      if (controller != null) {
+        artboard.addController(controller);
+        _input = controller.findInput<bool>('Like') as SMIBool;
+      }
+
+      return artboard;
+    } catch (e) {
+      print('Error loading Rive file: $e');
+      rethrow;
+    }
+  }
+
+
+  void _onStateChange(String stateMachineName, String stateName) {
+    print('State Changed to $stateName');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Artboard>(
+      future: _artboard,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData) {
+            return GestureDetector(
+              onTap: () {
+                if (_input != null) {
+                  _input!.value = !_input!.value;
+                }
+              },
+              child: SizedBox(
+                width: 150, // or your size
+                height: 150, // or your size
+                child: Rive(artboard: snapshot.data!),
+              ),
+            );
+          } else {
+            return Center(child: Text('Failed to load Rive file.'));
+          }
+        } else if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else {
+          return Center(child: Text('Failed to load Rive file.'));
+        }
+      },
     );
   }
 }

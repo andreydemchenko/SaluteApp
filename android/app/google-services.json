@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "142703883644-rm6jlb0u78ls2mobqf8lgot2q3caqudc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.demdev.salute",
+            "certificate_hash": "f86d83aa82e6bb02062dbf0584fc27b65303c943"
+          }
+        },
+        {
           "client_id": "142703883644-3ig1c3dgdgbu31de53193of21nh2d2at.apps.googleusercontent.com",
           "client_type": 3
         }
