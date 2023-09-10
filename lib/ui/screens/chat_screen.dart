@@ -201,12 +201,13 @@ class ChatScreen extends StatelessWidget {
                                           Padding(
                                             padding: const EdgeInsets.only(top: 12),
                                             child: Text(
-                                              "Say Sulute! to ${user.name}",
+                                              "Say Salute! \nto ${user.name}",
+                                              textAlign: TextAlign.center,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodyLarge
                                                   ?.copyWith(
-                                                      fontSize: 18,
+                                                      fontSize: 24,
                                                       color:
                                                           kColorPrimaryVariant,
                                                       fontWeight:

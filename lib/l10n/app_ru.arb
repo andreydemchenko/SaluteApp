@@ -43,5 +43,7 @@
   "logout": "ВЫЙТИ",
   "myLanguage": "Мой язык",
   "russian": "Русский",
-  "english": "Английский"
+  "english": "Английский",
+  "you": "Вы: ",
+  "writeSomething": "Напишите что-нибудь!"
 }

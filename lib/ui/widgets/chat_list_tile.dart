@@ -1,7 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:salute/data/model/chat_with_user.dart';
 import 'package:salute/util/constants.dart';
 import 'package:salute/util/utils.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ChatListTile extends StatelessWidget {
   final ChatWithUser chatWithUser;
@@ -41,7 +43,7 @@ class ChatListTile extends StatelessWidget {
               padding: EdgeInsets.only(left: 8, top: 8, bottom: 8),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [getTopRow(), getBottomRow()],
+                children: [getTopRow(context), getBottomRow(context)],
               ),
             )),
           ],
@@ -62,7 +64,7 @@ class ChatListTile extends StatelessWidget {
     return true;
   }
 
-  Widget getTopRow() {
+  Widget getTopRow(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -78,7 +80,7 @@ class ChatListTile extends StatelessWidget {
             chatWithUser.chat.lastMessage == null
                 ? ''
                 : convertEpochMsToDateTime(
-                    chatWithUser.chat.lastMessage!.epochTimeMs),
+                    chatWithUser.chat.lastMessage!.epochTimeMs, context),
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 12)
         ),
@@ -86,7 +88,7 @@ class ChatListTile extends StatelessWidget {
     );
   }
 
-  Widget getBottomRow() {
+  Widget getBottomRow(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -95,8 +97,8 @@ class ChatListTile extends StatelessWidget {
             opacity: 0.6,
             child: Text(
               chatWithUser.chat.lastMessage == null
-                  ? "Write something!"
-                  : ((isLastMessageMyText() ? "You: " : "") +
+                  ? AppLocalizations.of(context)!.writeSomething
+                  : ((isLastMessageMyText() ? AppLocalizations.of(context)!.you : "") +
                       chatWithUser.chat.lastMessage!.text),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

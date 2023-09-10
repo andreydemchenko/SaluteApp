@@ -53,7 +53,7 @@ class UserProvider extends ChangeNotifier {
     return response;
   }
 
-  /*Future<Response> registerUser(UserRegistration userRegistration,
+  Future<Response> registerUser(UserRegistration userRegistration,
       GlobalKey<ScaffoldState> errorScaffoldKey) async {
     Response<dynamic> response = await _authSource.register(
         userRegistration.email, userRegistration.password);
@@ -81,7 +81,7 @@ class UserProvider extends ChangeNotifier {
     }
     if (response is Error) showSnackBar(errorScaffoldKey, response.message);
     return response;
-  }*/
+  }
 
   /*Future<Response> registerUser(UserRegistration userRegistration,
       GlobalKey<ScaffoldState> errorScaffoldKey) async {

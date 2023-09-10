@@ -28,7 +28,7 @@ class MessageBubble extends StatelessWidget {
                   opacity: 0.4,
                   child: SizedBox(
                     width: double.infinity,
-                    child: Text(convertEpochMsToDateTime(epochTimeMs),
+                    child: Text(convertEpochMsToDateTime(epochTimeMs, context),
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             fontSize: 14, fontWeight: FontWeight.normal)),

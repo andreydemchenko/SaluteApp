@@ -60,39 +60,48 @@ class _LoginScreenState extends State<LoginScreen> {
           title: const Text('Login'),
         ),
         body: CustomModalProgressHUD(
-          inAsyncCall: _isLoading,
-          offset: null,
-          child: Padding(
-            padding: kDefaultPadding,
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 40),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.loginToAccount,
-                    style: Theme.of(context).textTheme.displaySmall,
-                  ),
-                  SizedBox(height: 40),
-                  BorderedTextField(
-                    labelText: AppLocalizations.of(context)!.email,
-                    keyboardType: TextInputType.emailAddress,
-                    onChanged: (value) => _inputEmail = value,
-                  ),
-                  SizedBox(height: 5),
-                  BorderedTextField(
-                    labelText: AppLocalizations.of(context)!.password,
-                    obscureText: true,
-                    keyboardType: TextInputType.text,
-                    onChanged: (value) => _inputPassword = value,
-                  ),
-                  Expanded(child: Container()),
-                  RoundedButton(text: AppLocalizations.of(context)!.login, onPressed: () { loginPressed(); })
-                ],
+            inAsyncCall: _isLoading,
+            offset: null,
+            child: Stack(fit: StackFit.expand, children: <Widget>[
+              Image.asset(
+                'images/simple_background.png',
+                fit: BoxFit.cover,
               ),
-            ),
-          ),
-        ),
+              Padding(
+                padding: kDefaultPadding,
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 40),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.loginToAccount,
+                        style: Theme.of(context).textTheme.displaySmall,
+                      ),
+                      SizedBox(height: 40),
+                      BorderedTextField(
+                        labelText: AppLocalizations.of(context)!.email,
+                        keyboardType: TextInputType.emailAddress,
+                        onChanged: (value) => _inputEmail = value,
+                      ),
+                      SizedBox(height: 5),
+                      BorderedTextField(
+                        labelText: AppLocalizations.of(context)!.password,
+                        obscureText: true,
+                        keyboardType: TextInputType.text,
+                        onChanged: (value) => _inputPassword = value,
+                      ),
+                      Expanded(child: Container()),
+                      RoundedButton(
+                          text: AppLocalizations.of(context)!.login,
+                          onPressed: () {
+                            loginPressed();
+                          })
+                    ],
+                  ),
+                ),
+              ),
+            ])),
       ),
     );
   }

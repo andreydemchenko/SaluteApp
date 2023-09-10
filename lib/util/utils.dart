@@ -19,14 +19,18 @@ String compareAndCombineIds(String userID1, String userID2) {
   }
 }
 
-String convertEpochMsToDateTime(DateTime dateTime) {
+String convertEpochMsToDateTime(DateTime dateTime, BuildContext context) {
   int oneDayInMs = 86400000;
   int epochMs = dateTime.millisecondsSinceEpoch;
   var date = DateTime.fromMillisecondsSinceEpoch(epochMs);
   int currentTimeMs = DateTime.now().millisecondsSinceEpoch;
+
+  // Get the locale from the context
+  String locale = Localizations.localeOf(context).toLanguageTag();
+
   if ((currentTimeMs - epochMs) >= oneDayInMs) {
-    return '${DateFormat.MMMd().format(date)}  ${DateFormat.Hm().format(date)}';
+    return '${DateFormat.MMMd(locale).format(date)}  ${DateFormat.Hm(locale).format(date)}';
   } else {
-    return DateFormat.Hm().format(date);
+    return DateFormat.Hm(locale).format(date);
   }
 }

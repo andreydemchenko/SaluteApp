@@ -28,48 +28,48 @@ class _SwipeCardState extends State<SwipeCard> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(25.0),
             child: PageView.builder(
-              scrollDirection: Axis.vertical,
-              onPageChanged: (value) {
-                setState(() {
-                  _currentIndex = value;
-                });
-              },
-              itemCount: widget.person.profilePhotoPaths.length,
-              itemBuilder: (context, index) => Container(
-                color: Colors.white,
-                child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      // Blurred background
-                      ImageFiltered(
-                        imageFilter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                        child: Image.network(
-                          widget.person.profilePhotoPaths[index],
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                      // Main image
-                      Image.network(
-                        widget.person.profilePhotoPaths[index],
-                        fit: BoxFit.fitHeight,
-                        loadingBuilder: (BuildContext context, Widget child,
-                            ImageChunkEvent? loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                                  : null,
+                scrollDirection: Axis.vertical,
+                onPageChanged: (value) {
+                  setState(() {
+                    _currentIndex = value;
+                  });
+                },
+                itemCount: widget.person.profilePhotoPaths.length,
+                itemBuilder: (context, index) => Container(
+                      color: Colors.white,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // Blurred background
+                          ImageFiltered(
+                            imageFilter:
+                                ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                            child: Image.network(
+                              widget.person.profilePhotoPaths[index],
+                              fit: BoxFit.fill,
                             ),
-                          );
-                        },
+                          ),
+                          // Main image
+                          Image.network(
+                            widget.person.profilePhotoPaths[index],
+                            fit: BoxFit.fitHeight,
+                            loadingBuilder: (BuildContext context, Widget child,
+                                ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-              )
-
-            ),
+                    )),
           ),
         ),
         Positioned(
@@ -87,7 +87,9 @@ class _SwipeCardState extends State<SwipeCard> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 1),
-                  color: _currentIndex == index ? Colors.white : Colors.transparent,
+                  color: _currentIndex == index
+                      ? Colors.white
+                      : Colors.transparent,
                 ),
               );
             }).toList(),
@@ -106,15 +108,18 @@ class _SwipeCardState extends State<SwipeCard> {
               gradient: kGrayGradient,
               borderRadius: BorderRadius.all(Radius.circular(25.0)),
             ),
-            child: Column(
-              children: [
-                Padding(
-                    padding: showInfo
-                        ? EdgeInsets.symmetric(horizontal: 8, vertical: 4)
-                        : EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                    child: getUserContent(context)),
-                showInfo ? getBottomInfo() : Container(),
-              ],
+            child: SingleChildScrollView(  // wrap with SingleChildScrollView
+              child: Column(
+                children: [
+                  Padding(
+                      padding: showInfo
+                          ? EdgeInsets.symmetric(horizontal: 8, vertical: 4)
+                          : EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                      child: getUserContent(context)
+                  ),
+                  showInfo ? getBottomInfo() : Container(),
+                ],
+              ),
             ),
           ),
         ),
@@ -126,26 +131,28 @@ class _SwipeCardState extends State<SwipeCard> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            RichText(
-                text: TextSpan(
-                  style: DefaultTextStyle
-                      .of(context)
-                      .style,
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: widget.person.name,
-                      style: TextStyle(fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: kPrimaryColor),
-                    ),
-                    TextSpan(text: '  ${widget.person.age}',
-                        style: TextStyle(fontSize: 30, color: kPrimaryColor)),
-                  ],
-                )),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RichText(
+                  text: TextSpan(
+                style: DefaultTextStyle.of(context).style,
+                children: <TextSpan>[
+                  TextSpan(
+                    text: widget.person.name,
+                    style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: kPrimaryColor),
+                  ),
+                  TextSpan(
+                      text: '  ${widget.person.age}',
+                      style: TextStyle(fontSize: 30, color: kPrimaryColor)),
+                ],
+              )),
+            ],
+          ),
         ),
         RoundedIconButton(
             onPressed: () {
@@ -158,8 +165,7 @@ class _SwipeCardState extends State<SwipeCard> {
             paddingReduce: 14,
             buttonColor: Colors.transparent,
             iconColor: kPrimaryColor,
-            imageAsset: 'images/info_icon.png'
-        ),
+            imageAsset: 'images/info_icon.png'),
       ],
     );
   }
@@ -175,7 +181,7 @@ class _SwipeCardState extends State<SwipeCard> {
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
-              bottomLeft:              Radius.circular(25),
+              bottomLeft: Radius.circular(25),
               bottomRight: Radius.circular(25),
             ),
             //color: Colors.black.withOpacity(.7),
@@ -185,7 +191,7 @@ class _SwipeCardState extends State<SwipeCard> {
             children: [
               Padding(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                 child: Opacity(
                   opacity: 0.8,
                   child: Text(
@@ -203,4 +209,3 @@ class _SwipeCardState extends State<SwipeCard> {
     );
   }
 }
-
